@@ -1,0 +1,8 @@
+spec:
+  destination:
+    server: in-cluster
+    namespace: sn-pulsar
+values:
+  repo:
+    revision: master
+    url: 'git@github.com:ciiiii/argo'

@@ -1,0 +1,212 @@
+fullnameOverride: sn-platform
+
+components:
+  pulsar_detector: true
+  vault: false
+
+auth:
+  authentication:
+    enabled: true
+    provider: "jwt"
+    jwt:
+      enabled: true
+      usingSecretKey: false
+  vault:
+    enabled: false
+
+images:
+  zookeeper:
+    repository: docker.io/go2sheep/pulsar
+    tag: "2023-06-19-12-10-35"
+  bookie:
+    repository: docker.io/go2sheep/pulsar
+    tag: "2023-06-19-12-10-35"
+  broker:
+    repository: docker.io/go2sheep/pulsar
+    tag: "2023-06-19-12-10-35"
+  proxy:
+    repository: docker.io/go2sheep/pulsar
+    tag: "2023-06-19-12-10-35"
+  toolset:
+    repository: docker.io/go2sheep/pulsar
+    tag: "2023-06-19-12-10-35"
+  pulsar_detector:
+    repository: docker.io/go2sheep/pulsar
+    tag: "2023-06-19-12-10-35"
+  # streamnative_console:
+  #   repository: docker.io/streamnative/private-cloud-console
+  #   tag: "v2.2.1-rc11"
+zookeeper:
+  securityContext:
+    runAsNonRoot: true
+    runAsGroup: 10001
+    fsGroup: 10001
+    runAsUser: 10000
+  jvm:
+    gcOptions:
+    - >
+      -XX:+UseG1GC
+      -XX:MaxGCPauseMillis=10
+      -Dcom.sun.management.jmxremote
+      -Djute.maxbuffer=10485760
+      -XX:+ParallelRefProcEnabled
+      -XX:+UnlockExperimentalVMOptions
+      -XX:+DoEscapeAnalysis
+      -XX:+DisableExplicitGC
+      -XX:+PerfDisableSharedMem
+      -Dzookeeper.forceSync=no
+bookkeeper:
+  bookKeeperCluster:
+    annotations:
+      cloud.streamnative.io/omit-init-sysctl: "true"
+  configData:
+    # Enable DirectIO by default
+    PULSAR_PREFIX_dbStorage_directIOEntryLogger: "true"
+  jvm:
+    gcOptions:
+    - >
+      -XX:+UseG1GC
+      -XX:MaxGCPauseMillis=10
+      -XX:+ParallelRefProcEnabled
+      -XX:+UnlockExperimentalVMOptions
+      -XX:+DoEscapeAnalysis
+      -XX:ParallelGCThreads=4
+      -XX:ConcGCThreads=4
+      -XX:G1NewSizePercent=50
+      -XX:+DisableExplicitGC
+      -XX:-ResizePLAB
+      -XX:+ExitOnOutOfMemoryError
+      -XX:+PerfDisableSharedMem
+      -verbosegc
+  securityContext:
+    runAsNonRoot: true
+    runAsGroup: 10001
+    fsGroup: 10001
+    runAsUser: 10000
+  autorecovery:
+    securityContext:
+      runAsNonRoot: true
+      runAsGroup: 10001
+      fsGroup: 10001
+      runAsUser: 10000
+    
+broker:
+  pulsarBroker:
+    annotations:
+      cloud.streamnative.io/omit-init-sysctl: "true"
+  replicaCount: 2
+  kop:
+    enabled: false
+  configData:
+    managedLedgerDefaultEnsembleSize: "3"
+    managedLedgerDefaultWriteQuorum: "3"
+    managedLedgerDefaultAckQuorum: "2"
+    PULSAR_PREFIX_systemTopicEnabled: "true"
+    PULSAR_PREFIX_topicLevelPoliciesEnabled: "true"
+    # Enable the new Load Balancer, not suggest to enable and use now.
+    # Wait for https://github.com/apache/pulsar/pull/20528, https://github.com/apache/pulsar/pull/20525 release for fix.
+    # loadManagerClassName: "org.apache.pulsar.broker.loadbalance.extensions.ExtensibleLoadManagerImpl"
+    # loadBalancerLoadSheddingStrategy: "org.apache.pulsar.broker.loadbalance.extensions.scheduler.TransferShedder"
+    # Enable the new delayed message
+    delayedDeliveryTrackerFactoryClassName: "org.apache.pulsar.broker.delayed.BucketDelayedDeliveryTrackerFactory"
+    # Enable transaction buffer segmented snapshot
+    transactionBufferSegmentedSnapshotEnabled: "true"
+    transactionBufferSnapshotSegmentSize: "262144"
+  jvm:
+    gcOptions:
+      - >
+        -XX:+UseG1GC
+        -XX:MaxGCPauseMillis=10
+        -Dio.netty.leakDetectionLevel=disabled
+        -Dio.netty.recycler.linkCapacity=1024
+        -XX:+ParallelRefProcEnabled
+        -XX:+UnlockExperimentalVMOptions
+        -XX:+DoEscapeAnalysis
+        -XX:ParallelGCThreads=4
+        -XX:ConcGCThreads=4
+        -XX:G1NewSizePercent=50
+        -XX:+DisableExplicitGC
+        -XX:-ResizePLAB
+        -XX:+ExitOnOutOfMemoryError
+        -XX:+PerfDisableSharedMem
+  securityContext:
+    runAsNonRoot: true
+    runAsGroup: 10001
+    fsGroup: 10001
+    runAsUser: 10000
+
+proxy:
+  jvm:
+    gcOptions:
+    - >
+      -XX:+UseG1GC
+      -XX:MaxGCPauseMillis=10
+      -Dio.netty.leakDetectionLevel=disabled
+      -Dio.netty.recycler.linkCapacity=1024
+      -XX:+ParallelRefProcEnabled
+      -XX:+UnlockExperimentalVMOptions
+      -XX:+DoEscapeAnalysis
+      -XX:ParallelGCThreads=4
+      -XX:ConcGCThreads=4
+      -XX:G1NewSizePercent=50
+      -XX:+DisableExplicitGC
+      -XX:-ResizePLAB
+      -XX:+ExitOnOutOfMemoryError
+      -XX:+PerfDisableSharedMem
+  securityContext:
+    runAsNonRoot: true
+    runAsGroup: 10001
+    fsGroup: 10001
+    runAsUser: 10000
+
+streamnative_console:
+  # securityContext:
+  #   fsGroup: 1000
+  #   runAsGroup: 1000
+  #   runAsNonRoot: true
+  #   runAsUser: 1000
+  configData:
+    INIT_DEFAULT_ENVIRONMENT: true
+    BACKEND_DEFAULT_SUPER_USER_ROLE: "admin,pulsar-manager-admin" 
+  login:
+    sso:
+      pulsarJwt:
+        enabled: true
+        config:
+          AUTHENTICATION_CUSTOM_CLAIM: sub
+          # The secret should contain both `TOKEN`
+          SERVICE_ACCOUNT_SUPER_TOKEN_SECRET: "sn-platform-token-admin"
+          # AUTH_METHOD_CUSTOM_CLAIM: sub
+          # USERNAME_CLAIM: sub
+          JWT_BROKER_TOKEN_MODE: PRIVATE
+          # The secret should contain both `PUBLICKEY`, `PRIVATEKEY`
+          JWT_BROKER_PUBLIC_PRIVATE_KEY: "sn-platform-token-asymmetric-key"
+          # The secret should contain both `SECRETKEY`
+          JWT_BROKER_SECRET_KEY: ""
+toolset:
+  securityContext:
+    runAsNonRoot: true
+    runAsGroup: 10001
+    fsGroup: 10001
+    runAsUser: 10000
+
+pulsar_detector:
+  securityContext:
+    runAsNonRoot: true
+    runAsGroup: 10001
+    fsGroup: 10001
+    runAsUser: 10000
+  
+monitoring:
+  # monitoring - prometheus
+  prometheus: false
+  # monitoring - grafana
+  grafana: false
+  # monitoring - node_exporter
+  node_exporter: false
+  # alerting - alert-manager
+  alert_manager: false
+  # monitoring - loki
+  loki: false
+  # monitoring - datadog
+  datadog: false
