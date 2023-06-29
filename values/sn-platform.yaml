@@ -33,9 +33,9 @@ images:
   pulsar_detector:
     repository: docker.io/go2sheep/pulsar
     tag: "2023-06-19-12-10-35"
-  # streamnative_console:
-  #   repository: docker.io/streamnative/private-cloud-console
-  #   tag: "v2.2.1-rc11"
+  streamnative_console:
+    repository: docker.io/streamnative/private-cloud-console
+    tag: "v2.2.1-rc11"
 zookeeper:
   securityContext:
     runAsNonRoot: true
@@ -160,11 +160,11 @@ proxy:
     runAsUser: 10000
 
 streamnative_console:
-  # securityContext:
-  #   fsGroup: 1000
-  #   runAsGroup: 1000
-  #   runAsNonRoot: true
-  #   runAsUser: 1000
+  securityContext:
+    fsGroup: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    runAsUser: 1000
   configData:
     INIT_DEFAULT_ENVIRONMENT: true
     BACKEND_DEFAULT_SUPER_USER_ROLE: "admin,pulsar-manager-admin" 
@@ -184,6 +184,7 @@ streamnative_console:
           # The secret should contain both `SECRETKEY`
           JWT_BROKER_SECRET_KEY: ""
 toolset:
+  installBusybox: false
   securityContext:
     runAsNonRoot: true
     runAsGroup: 10001
