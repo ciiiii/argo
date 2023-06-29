@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sn-pulsar
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+  namespace: argo
+spec:
+  destination:
+    namespace: argo
+    server: https://kubernetes.default.svc
+  source:
+    path: charts/sn-pulsar
+    repoURL: 'git@github.com:ciiiii/argo'
+    targetRevision: master
+    helm:
+      values: |
+        spec:
+          destination:
+            server: https://kubernetes.default.svc
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - allowEmpty=true
+    - CreateNamespace=true
