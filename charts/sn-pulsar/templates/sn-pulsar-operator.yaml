@@ -20,3 +20,6 @@ spec:
   destination:
     server: {{ .Values.spec.destination.server }}
     namespace: {{ .Values.spec.destination.namespace }}
+  syncPolicy:
+    syncOptions:
+    - Replace=true
