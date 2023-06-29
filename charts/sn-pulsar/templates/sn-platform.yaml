@@ -10,7 +10,7 @@ spec:
   sources:
   - repoURL: 'https://github.com/streamnative/charts.git'
     path: charts/sn-platform-slim
-    targetRevision: branch-sn-platform-slim-1.10.3
+    targetRevision: branch-sn-platform-slim-1.10.4
     helm:
       valueFiles:
       - $values-repo/values/sn-platform.yaml
